@@ -79,6 +79,10 @@ func getARandomPointInMap(map:Array) -> Vector2i:
 	return Vector2i( 
 		randi_range( 0, width ), 
 		randi_range(0, height) )
+func getARandomPointInSection(section: Array) -> Vector2i:
+	return Vector2i(
+		randi_range(section[0].x, section[section.size() - 1].x),
+		randi_range(section[0].y, section[section.size() - 1].y))
 func getARandomTileByTileType( tileToGet:int, map:Array ) -> Vector2:
 	var allTilesOfAType := getArrayOfAllTilesOfOneType(tileToGet, map)
 	return allTilesOfAType[ floor( randf() * allTilesOfAType.size() ) ]
@@ -590,14 +594,21 @@ func drawToFillInPatchesOfASizeByTileType(min_size: int, cellToCheck:int, cellTo
 						map_copy = setCell( pos.x, pos.y, cellToFillWith, map_copy )
 	return map_copy
 
-func drawRandomWalksInsideLargeSectionsOfARandomTileType( timesToPlaceAWalk:int, 
-					walkCount:int, 
-					tileTypeOfSection:int, 
-					tileTypeToPlace:int, 
-					map:Array 
+func drawRandomWalksInsideLargeSectionsOfARandomTileType(timesToPlaceAWalk: int,
+					walkCount: int,
+					tileTypeOfSection: int,
+					tileTypeToPlace: int,
+					walkThickness: int,
+					map: Array
 			) -> Array:
-	var a := map.duplicate( true )
-	return a
+	var sections = getSectionsOfACertainTile(tileTypeOfSection, map)
+	var map_copy = map.duplicate(true)
+	for i in range(timesToPlaceAWalk):
+		var section = getARandomSection(sections, map)
+		var startPos = getARandomPointInSection(section)
+		map_copy = drawRandomWalk(startPos, walkCount, tileTypeToPlace, walkThickness, map_copy)
+
+	return map_copy
 
 
 # Updated function for a crazy sporadic walker with thickness
